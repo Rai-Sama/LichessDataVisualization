@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 from io import StringIO
 import chess.pgn
 
+# Load CSV containing mapping of ECO to opening names
 @st.cache_data
 def load_openings(): 
     openings = pd.read_csv('Chess_Openings.csv')  # Ensure the correct path to the CSV
@@ -43,6 +44,21 @@ def parse_openings_from_pgn(pgn_data, openings_df):
                 
     return openings_count
 
+# Fetch user stats for a specific time format
+def fetch_user_stats(username, game_format):
+    url = f'https://lichess.org/api/user/{username}/perf/{game_format}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()["stat"]  # Return stats JSON data
+    return None
+
+# Fetch player rating data
+def fetch_rating_history(username):
+    url = f'https://lichess.org/api/user/{username}/rating-history'
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    return None
 
 # Streamlit App
 st.title("Lichess Player Analysis Dashboard")
@@ -71,13 +87,54 @@ if username:
         else:
             st.write("No openings found.")
 
-        # Game formats and variants to display -- standard lichess formats based on the docs
+        # Fetch player rating history
+        rating_history = fetch_rating_history(username)
+        
+        # Game formats and variants to display
         game_formats = ['bullet', 'blitz', 'rapid', 'classical', 'correspondence', 
         'ultraBullet', 'crazyhouse', 'antichess', 
         'horde', 'chess960', 'kingOfTheHill', 'threeCheck', 'racingKings'
         ]
 
+        
         for game_format in game_formats:
             st.header(f"{game_format.capitalize()} Games")
-            st.write(f"<< Win/Loss ratio for {game_format.capitalize()} games. >>")
-            st.write(f"<<Rating progression for {game_format.capitalize()} games >>")
+            
+            # Fetch user stats for the specific format/variant
+            stats = fetch_user_stats(username, game_format)
+    
+            if stats:
+                total_games = stats['count']['all']
+                wins = stats['count']['win']
+                losses = stats['count']['loss']
+                draws = stats['count']['draw']
+                
+                win_loss_data = {
+                    'Win': wins,
+                    'Loss': losses,
+                    'Draw': draws
+                }
+    
+                # Pie chart for win/loss ratio
+                with st.expander(f"Win/Loss/Draw Ratio in {game_format.capitalize()}"):
+                    fig_white = px.pie(values=win_loss_data.values(), names=win_loss_data.keys(), 
+                                       title=f"Win/Loss/Draw Ratio in {game_format.capitalize()}", hole=0.4)
+                    fig_white.update_traces(textinfo='percent+label')
+                    st.plotly_chart(fig_white)
+    
+                # Rating progression for the format/variant
+                if rating_history:
+                    for rating in rating_history:
+                        if rating['name'] == game_format.capitalize() and rating['points']:
+                            dates = [point[0] for point in rating['points']]
+                            ratings = [point[3] for point in rating['points']]
+                            with st.expander(f"Rating Progression in {game_format.capitalize()}"):
+                                fig_rating = go.Figure(data=[go.Scatter(x=dates, y=ratings, mode='lines+markers')])
+                                fig_rating.update_layout(title=f"Rating Progression in {game_format.capitalize()}", xaxis_title='Date', yaxis_title='Rating')
+                                st.plotly_chart(fig_rating)
+                else:
+                    st.write(f"No rating data available for {game_format.capitalize()}.")
+            else:
+                st.write(f"Error fetching {game_format.capitalize()} statistics for {username}.")
+    else:
+        st.write(f"Error fetching games for {username}.")
