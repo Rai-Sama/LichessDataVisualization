@@ -47,7 +47,7 @@ def fetch_rating_history(username):
     response = requests.get(url)
     return response.json() if response.status_code == 200 else None
 
-def load_openings(file_path = 'Chess_Openings.csv'):
+def load_openings(file_path = 'chess_openings.csv'):
     """
     Loads chess openings from a CSV file.
 
