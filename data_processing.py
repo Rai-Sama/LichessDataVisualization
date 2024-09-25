@@ -20,7 +20,9 @@ def parse_openings_from_pgn(pgn_data, openings_df):
         game = chess.pgn.read_game(pgn_io)
         if game is None:
             break
-
+        """
+        - Mapping ECO to opening name
+        """
         opening_eco = game.headers.get("ECO", "")
         opening_name = openings_df[openings_df['ECO'] == opening_eco]['name'].values
         
