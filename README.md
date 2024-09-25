@@ -30,7 +30,7 @@ To set up the project, follow these steps:
 
 ```bash
 git clone https://github.com/your-username/lichess-player-analysis-dashboard.git
-cd lichess-player-analysis-dashboard
+cd LichessDataVisualization
 ```
 ### Step 2: Create a Virtual Environment (Optional)
 
