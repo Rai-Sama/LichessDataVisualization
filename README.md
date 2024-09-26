@@ -79,7 +79,7 @@ lichess-player-analysis-dashboard/
    - Rating progression charts for each game format.
 
 ## License
-This project is licensed under the GNU Public License. See the LICENSE file for more details.
+This project is licensed under the MIT License. See the LICENSE file for more details.
 
 ## Contributing
 Contributions are welcome! If you have suggestions or improvements, feel free to fork the repository and create a pull request.
