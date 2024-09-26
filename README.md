@@ -1,5 +1,5 @@
 # Lichess Player Analysis Dashboard
-
+Deployed demo: https://chessspeaksforitself.streamlit.app/
 ## Overview
 
 The Lichess Player Analysis Dashboard is a Streamlit application designed to provide insights into a Lichess player's chess games. It fetches game data, analyzes openings, and visualizes player statistics across various game formats, allowing users to gain a deeper understanding of their chess performance and strategies.
